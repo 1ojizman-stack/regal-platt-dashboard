@@ -1,0 +1,1520 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Regal Platt — Logga In</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #0066cc;
+            --success: #28a745;
+            --danger: #dc3545;
+            --dark: #212529;
+            --light: #f8f9fa;
+            --border: #dee2e6;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, var(--primary) 0%, #0052a3 100%);
+            color: var(--dark);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        select, input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-family: inherit;
+        }
+
+        select:focus, input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+        }
+
+        .login-container {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .login-header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0052a3;
+        }
+
+        .btn-secondary {
+            background: var(--light);
+            color: var(--dark);
+            border: 1px solid var(--border);
+            margin-top: 0.5rem;
+        }
+
+        .btn-secondary:hover {
+            background: #e9ecef;
+        }
+
+        .btn-small {
+            padding: 0.375rem 0.75rem;
+            font-size: 0.875rem;
+            width: auto;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            color: #000;
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .alert.show {
+            display: block;
+        }
+
+        .alert-danger {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .helper-text {
+            font-size: 0.85rem;
+            color: #6c757d;
+            margin-top: 0.5rem;
+        }
+
+        .wrapper {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 250px;
+            background: var(--dark);
+            color: white;
+            padding: 1.5rem;
+            overflow-y: auto;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+        }
+
+        .sidebar h2 {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+            color: var(--primary);
+        }
+
+        .user-profile {
+            background: rgba(255,255,255,0.1);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .user-name {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .sidebar-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .sidebar-item {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .sidebar-item:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .sidebar-item.active {
+            background: var(--primary);
+            border-left-color: white;
+            font-weight: 600;
+        }
+
+        .logout-btn {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--danger);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: auto;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            background: white;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            font-size: 1.8rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .card-header {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .table th {
+            background: var(--light);
+            padding: 0.75rem;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .table td {
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .table tr:hover {
+            background: var(--light);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 0.5rem;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 0;
+        }
+
+        .checklist-item:last-child {
+            border-bottom: none;
+        }
+
+        .checklist-item input[type="checkbox"] {
+            width: auto;
+            margin: 0;
+            cursor: pointer;
+        }
+
+        .checklist-item label {
+            margin: 0;
+            flex: 1;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+        }
+
+        .checklist-item input[type="checkbox"]:checked + label {
+            text-decoration: line-through;
+            color: #6c757d;
+        }
+
+        .checklist-section {
+            background: var(--light);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .checklist-section-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 0.75rem;
+            color: var(--dark);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 24px;
+            background: var(--light);
+            border-radius: 0.5rem;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--success));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .wrapper {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+            }
+
+            .main-content {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- LOGIN SCREEN -->
+    <div id="loginScreen">
+        <div class="login-container">
+            <div class="login-header">
+                <h1>🔧 Regal Platt</h1>
+                <p>Arbetarportal</p>
+            </div>
+
+            <div id="loginAlert" class="alert"></div>
+
+            <div class="form-group">
+                <label>Namn</label>
+                <input type="text" id="loginName" placeholder="Ravshan Isomov">
+                <div class="helper-text">Ditt registrerade namn</div>
+            </div>
+
+            <div class="form-group">
+                <label>Telegram ID</label>
+                <input type="text" id="loginTelegramId" placeholder="123456789">
+                <div class="helper-text">Skriv /id till boten</div>
+            </div>
+
+            <button class="btn btn-primary" onclick="login()">Logga In</button>
+
+            <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border); text-align: center;">
+                <div class="helper-text">Är du admin?</div>
+                <button class="btn btn-secondary" style="margin-top: 0.5rem;" onclick="showAdminLogin()">Admin Logga In</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADMIN LOGIN -->
+    <div id="adminLoginScreen" style="display: none;">
+        <div class="login-container">
+            <div class="login-header">
+                <h1>🔧 Regal Platt</h1>
+                <p>Adminpanel</p>
+            </div>
+
+            <div id="adminLoginAlert" class="alert"></div>
+
+            <div class="form-group">
+                <label>Admin Lösenord</label>
+                <input type="password" id="adminPassword" placeholder="••••••">
+                <div class="helper-text">Standard: admin123</div>
+            </div>
+
+            <button class="btn btn-primary" onclick="adminLogin()">Admin Logga In</button>
+            <button class="btn btn-secondary" onclick="backToWorkerLogin()">Tillbaka</button>
+        </div>
+    </div>
+
+    <!-- WORKER INTERFACE -->
+    <div id="workerApp" style="display: none;">
+        <div class="wrapper">
+            <div class="sidebar">
+                <h2>Regal Platt</h2>
+                
+                <div class="user-profile">
+                    <div class="user-name" id="sidebarName">—</div>
+                    <div style="font-size: 0.85rem; color: #adb5bd;">Arbetare</div>
+                </div>
+
+                <div class="sidebar-menu">
+                    <div class="sidebar-item active" onclick="switchWorkerTab('log')">⏱ Logga Timmar</div>
+                    <div class="sidebar-item" onclick="switchWorkerTab('checklist')">✅ Checklista</div>
+                    <div class="sidebar-item" onclick="switchWorkerTab('history')">📋 Mina Poster</div>
+                </div>
+
+                <button class="logout-btn" onclick="logout()">🚪 Logga Ut</button>
+            </div>
+
+            <div class="main-content">
+                <header>
+                    <h1 id="workerPageTitle">⏱ Logga Timmar</h1>
+                </header>
+
+                <!-- LOG HOURS TAB -->
+                <div id="logTab" class="tab-content active">
+                    <div id="logAlert" class="alert"></div>
+
+                    <div class="card">
+                        <div class="card-header">⏱ Logga Timmar</div>
+
+                        <div class="form-group">
+                            <label>Projekt</label>
+                            <select id="wkProject">
+                                <option value="">— Välj —</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Datum</label>
+                            <input type="date" id="wkDate">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Rum/Plats</label>
+                            <input type="text" id="wkRoom" placeholder="Rum 1, Vägg, Golv">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Timmar</label>
+                            <input type="number" id="wkHours" step="0.5" min="0" max="24" placeholder="8.5">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Anteckning (valfritt)</label>
+                            <input type="text" id="wkNote" placeholder="Vad gjordes?">
+                        </div>
+
+                        <button class="btn btn-primary" onclick="workerLogHours()">
+                            ✅ Logga Timmar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- CHECKLIST TAB -->
+                <div id="checklistTab" class="tab-content">
+                    <div id="checklistAlert" class="alert"></div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <span>✅ Projekt Checklista</span>
+                            <button class="btn btn-primary btn-small" onclick="addChecklistToProject()">➕ Checklista</button>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Välj Projekt</label>
+                            <select id="checklistProject" onchange="loadProjectChecklist()">
+                                <option value="">— Välj —</option>
+                            </select>
+                        </div>
+
+                        <div id="checklistContainer"></div>
+                    </div>
+                </div>
+
+                <!-- HISTORY TAB -->
+                <div id="historyTab" class="tab-content">
+                    <div class="card">
+                        <div class="card-header">
+                            <span>📋 Mina Poster</span>
+                            <button class="btn btn-warning btn-small" onclick="exportToPDF()">📄 PDF</button>
+                        </div>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Datum</th>
+                                    <th>Projekt</th>
+                                    <th>Rum</th>
+                                    <th>Timmar</th>
+                                </tr>
+                            </thead>
+                            <tbody id="workerHistoryTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADMIN INTERFACE -->
+    <div id="adminApp" style="display: none;">
+        <div class="wrapper">
+            <div class="sidebar">
+                <h2>🔧 Regal Platt</h2>
+                
+                <div class="user-profile">
+                    <div class="user-name">ADMIN</div>
+                    <div style="font-size: 0.85rem; color: #adb5bd;">Adminpanel</div>
+                </div>
+
+                <div class="sidebar-menu">
+                    <div class="sidebar-item active" onclick="switchAdminTab('projects')">📋 Projekt</div>
+                    <div class="sidebar-item" onclick="switchAdminTab('records')">⏱ Poster</div>
+                    <div class="sidebar-item" onclick="switchAdminTab('users')">👥 Användare</div>
+                    <div class="sidebar-item" onclick="switchAdminTab('settings')">⚙️ Inställningar</div>
+                </div>
+
+                <button class="logout-btn" onclick="logout()">🚪 Logga Ut</button>
+            </div>
+
+            <div class="main-content">
+                <header>
+                    <h1 id="adminPageTitle">📋 Projekt</h1>
+                </header>
+
+                <!-- PROJECTS TAB -->
+                <div id="projectsTab" class="tab-content active">
+                    <div id="projectAlert" class="alert"></div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <span>📋 Projekt</span>
+                            <button class="btn btn-primary btn-small" onclick="openProjectModal()">➕ Ny Projekt</button>
+                        </div>
+
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Namn</th>
+                                    <th>Plats</th>
+                                    <th>Plan (h)</th>
+                                    <th>Åtgärder</th>
+                                </tr>
+                            </thead>
+                            <tbody id="projectsTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- RECORDS TAB -->
+                <div id="recordsTab" class="tab-content">
+                    <div class="card">
+                        <div class="card-header">
+                            <span>⏱ Timmar</span>
+                            <button class="btn btn-warning btn-small" onclick="exportAllPDF()">📄 Exportera PDF</button>
+                        </div>
+
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Datum</th>
+                                    <th>Arbetare</th>
+                                    <th>Projekt</th>
+                                    <th>Rum</th>
+                                    <th>Timmar</th>
+                                    <th>Åtgärder</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recordsTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- USERS TAB -->
+                <div id="usersTab" class="tab-content">
+                    <div class="card">
+                        <div class="card-header">
+                            <span>👥 Användare</span>
+                            <button class="btn btn-primary btn-small" onclick="openUserModal()">➕ Ny Användare</button>
+                        </div>
+
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Namn</th>
+                                    <th>Telegram ID</th>
+                                    <th>Roll</th>
+                                    <th>Åtgärder</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- SETTINGS TAB -->
+                <div id="settingsTab" class="tab-content">
+                    <div class="card">
+                        <div class="card-header">🔐 Ändra Lösenord</div>
+
+                        <div class="form-group">
+                            <label>Gammalt Lösenord</label>
+                            <input type="password" id="oldPassword" placeholder="••••••">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Nytt Lösenord</label>
+                            <input type="password" id="newPassword" placeholder="••••••">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Bekräfta Nytt Lösenord</label>
+                            <input type="password" id="confirmPassword" placeholder="••••••">
+                        </div>
+
+                        <button class="btn btn-success" onclick="changePassword()">
+                            ✅ Ändra Lösenord
+                        </button>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">⚠️ Farliga Åtgärder</div>
+                        <button class="btn btn-danger" onclick="resetAllData()">
+                            🗑️ Ta Bort All Data
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PROJECT MODAL -->
+    <div id="projectModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>📋 Ny Projekt</span>
+                <button class="close-btn" onclick="closeModal('projectModal')">&times;</button>
+            </div>
+
+            <div class="form-group">
+                <label>Projekt ID</label>
+                <input type="text" id="pId" placeholder="UP1024">
+            </div>
+
+            <div class="form-group">
+                <label>Projektnamn</label>
+                <input type="text" id="pName" placeholder="Orangerihuset">
+            </div>
+
+            <div class="form-group">
+                <label>Plats</label>
+                <input type="text" id="pLocation" placeholder="Kista">
+            </div>
+
+            <div class="form-group">
+                <label>Planerade Timmar</label>
+                <input type="number" id="pPlan" step="1" min="0" placeholder="100">
+            </div>
+
+            <button class="btn btn-primary" onclick="saveProject()" style="margin-bottom: 0.5rem;">✅ Spara</button>
+            <button class="btn btn-secondary" onclick="closeModal('projectModal')">Avbryt</button>
+        </div>
+    </div>
+
+    <!-- USER MODAL -->
+    <div id="userModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>👤 Ny Användare</span>
+                <button class="close-btn" onclick="closeModal('userModal')">&times;</button>
+            </div>
+
+            <div class="form-group">
+                <label>Namn</label>
+                <input type="text" id="uName">
+            </div>
+
+            <div class="form-group">
+                <label>Telegram ID</label>
+                <input type="text" id="uTelegramId">
+            </div>
+
+            <div class="form-group">
+                <label>Roll</label>
+                <select id="uRole">
+                    <option value="worker">🔧 Arbetare</option>
+                    <option value="manager">📋 Ledare</option>
+                    <option value="admin">👨‍💼 Admin</option>
+                </select>
+            </div>
+
+            <button class="btn btn-primary" onclick="saveUser()" style="margin-bottom: 0.5rem;">✅ Spara</button>
+            <button class="btn btn-secondary" onclick="closeModal('userModal')">Avbryt</button>
+        </div>
+    </div>
+
+    <!-- CHECKLIST MODAL -->
+    <div id="checklistModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>✅ Badrumslistor</span>
+                <button class="close-btn" onclick="closeModal('checklistModal')">&times;</button>
+            </div>
+
+            <div id="checklistTemplates"></div>
+
+            <button class="btn btn-secondary" onclick="closeModal('checklistModal')" style="margin-top: 1rem;">Avbryt</button>
+        </div>
+    </div>
+
+    <script>
+        // ═══════════════════════════════════════════════════════════════════
+        // CHECKLIST TEMPLATES
+        // ═══════════════════════════════════════════════════════════════════
+
+        const CHECKLIST_TEMPLATES = {
+            badrum: {
+                title: '🚿 Badrum',
+                items: [
+                    'Tätskikt',
+                    'Plattsättning vägg',
+                    'Plattsättning golv',
+                    'Fogning vägg',
+                    'Fogning golv',
+                    'Silikon',
+                    'Skyddstäckning'
+                ]
+            },
+            wcdusch: {
+                title: '🚽 WC/Dusch',
+                items: [
+                    'Tätskikt',
+                    'Plattsättning vägg',
+                    'Plattsättning golv',
+                    'Fogning vägg',
+                    'Fogning golv',
+                    'Silikon',
+                    'Skyddstäckning'
+                ]
+            },
+            wc: {
+                title: '🚽 WC',
+                items: [
+                    'Tätskikt',
+                    'Plattsättning',
+                    'Fogning',
+                    'Silikon',
+                    'Skyddstäckning'
+                ]
+            },
+            trapphus: {
+                title: '🪜 Trapphus',
+                items: [
+                    'Stegljudsmatta',
+                    'Trapphusläggning',
+                    'Sockling i trappus',
+                    'Fugtrapphus'
+                ]
+            }
+        };
+
+        // ═══════════════════════════════════════════════════════════════════
+        // DATABASE
+        // ═══════════════════════════════════════════════════════════════════
+
+        const DB = {
+            getUsers() {
+                return JSON.parse(localStorage.getItem('users') || '[]');
+            },
+            saveUser(u) {
+                const users = this.getUsers();
+                const idx = users.findIndex(x => x.telegramId === u.telegramId);
+                if (idx !== -1) users[idx] = u;
+                else users.push(u);
+                localStorage.setItem('users', JSON.stringify(users));
+            },
+            findUser(telegramId) {
+                return this.getUsers().find(u => u.telegramId === telegramId);
+            },
+            getProjects() {
+                return JSON.parse(localStorage.getItem('projects') || '[]');
+            },
+            saveProject(p) {
+                const projects = this.getProjects();
+                const idx = projects.findIndex(x => x.id === p.id);
+                if (idx !== -1) projects[idx] = p;
+                else projects.push(p);
+                localStorage.setItem('projects', JSON.stringify(projects));
+            },
+            deleteProject(id) {
+                const projects = this.getProjects().filter(p => p.id !== id);
+                localStorage.setItem('projects', JSON.stringify(projects));
+            },
+            getRecords(pid) {
+                return JSON.parse(localStorage.getItem(`records_${pid}`) || '[]');
+            },
+            saveRecord(pid, r) {
+                const recs = this.getRecords(pid);
+                if (!r.id) r.id = Date.now().toString();
+                const idx = recs.findIndex(x => x.id === r.id);
+                if (idx !== -1) recs[idx] = r;
+                else recs.push(r);
+                localStorage.setItem(`records_${pid}`, JSON.stringify(recs));
+            },
+            deleteRecord(pid, id) {
+                const recs = this.getRecords(pid).filter(r => r.id !== id);
+                localStorage.setItem(`records_${pid}`, JSON.stringify(recs));
+            },
+            getChecklists(pid) {
+                return JSON.parse(localStorage.getItem(`checklists_${pid}`) || '[]');
+            },
+            saveChecklist(pid, cl) {
+                const lists = this.getChecklists(pid);
+                if (!cl.id) cl.id = Date.now().toString();
+                const idx = lists.findIndex(x => x.id === cl.id);
+                if (idx !== -1) lists[idx] = cl;
+                else lists.push(cl);
+                localStorage.setItem(`checklists_${pid}`, JSON.stringify(lists));
+            }
+        };
+
+        // ═══════════════════════════════════════════════════════════════════
+        // AUTHENTICATION
+        // ═══════════════════════════════════════════════════════════════════
+
+        let currentUser = null;
+
+        function login() {
+            const name = document.getElementById('loginName').value.trim();
+            const telegramId = document.getElementById('loginTelegramId').value.trim();
+
+            if (!name || !telegramId) {
+                showAlert('loginAlert', '❌ Fyll i ditt namn och Telegram ID', 'alert-danger');
+                return;
+            }
+
+            if (!/^\d+$/.test(telegramId)) {
+                showAlert('loginAlert', '❌ Telegram ID måste innehålla bara siffror', 'alert-danger');
+                return;
+            }
+
+            let user = DB.findUser(telegramId);
+            if (!user) {
+                user = {
+                    telegramId,
+                    name,
+                    role: 'worker',
+                    createdAt: new Date().toISOString()
+                };
+                DB.saveUser(user);
+            }
+
+            currentUser = user;
+            localStorage.setItem('currentUser', JSON.stringify(user));
+            showWorkerApp();
+        }
+
+        function adminLogin() {
+            const password = document.getElementById('adminPassword').value;
+            const correctPassword = localStorage.getItem('adminPassword') || 'admin123';
+
+            if (password !== correctPassword) {
+                showAlert('adminLoginAlert', '❌ Fel lösenord', 'alert-danger');
+                return;
+            }
+
+            currentUser = { role: 'admin', name: 'Admin' };
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            showAdminApp();
+        }
+
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem('currentUser');
+            location.reload();
+        }
+
+        // ═══════════════════════════════════════════════════════════════════
+        // UI NAVIGATION
+        // ═══════════════════════════════════════════════════════════════════
+
+        function showWorkerApp() {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('adminLoginScreen').style.display = 'none';
+            document.getElementById('workerApp').style.display = 'flex';
+            document.getElementById('sidebarName').textContent = currentUser.name;
+            document.getElementById('wkDate').valueAsDate = new Date();
+
+            loadWorkerProjects();
+            loadWorkerHistory();
+        }
+
+        function showAdminApp() {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('adminLoginScreen').style.display = 'none';
+            document.getElementById('workerApp').style.display = 'none';
+            document.getElementById('adminApp').style.display = 'flex';
+
+            loadAdminProjects();
+            loadAllRecords();
+            loadUsers();
+        }
+
+        function showAdminLogin() {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('adminLoginScreen').style.display = 'flex';
+        }
+
+        function backToWorkerLogin() {
+            document.getElementById('adminLoginScreen').style.display = 'none';
+            document.getElementById('loginScreen').style.display = 'flex';
+        }
+
+        function switchWorkerTab(tab) {
+            document.querySelectorAll('#workerApp .tab-content').forEach(t => t.classList.remove('active'));
+            document.getElementById(tab + 'Tab').classList.add('active');
+            document.querySelectorAll('#workerApp .sidebar-item').forEach(s => s.classList.remove('active'));
+            event.target.classList.add('active');
+
+            const titles = {
+                log: '⏱ Logga Timmar',
+                checklist: '✅ Checklista',
+                history: '📋 Mina Poster'
+            };
+            document.getElementById('workerPageTitle').textContent = titles[tab] || 'Arbetarportal';
+
+            if (tab === 'checklist') {
+                loadChecklistProjects();
+            } else if (tab === 'history') {
+                loadWorkerHistory();
+            }
+        }
+
+        function switchAdminTab(tab) {
+            document.querySelectorAll('#adminApp .tab-content').forEach(t => t.classList.remove('active'));
+            document.getElementById(tab + 'Tab').classList.add('active');
+            document.querySelectorAll('#adminApp .sidebar-item').forEach(s => s.classList.remove('active'));
+            event.target.classList.add('active');
+
+            const titles = {
+                users: '👥 Användare',
+                projects: '📋 Projekt',
+                records: '⏱ Poster',
+                settings: '⚙️ Inställningar'
+            };
+            document.getElementById('adminPageTitle').textContent = titles[tab] || 'Adminpanel';
+
+            if (tab === 'records') loadAllRecords();
+            if (tab === 'projects') loadAdminProjects();
+            if (tab === 'users') loadUsers();
+        }
+
+        // ═══════════════════════════════════════════════════════════════════
+        // WORKER FUNCTIONS
+        // ═══════════════════════════════════════════════════════════════════
+
+        function loadWorkerProjects() {
+            const projects = DB.getProjects();
+            document.getElementById('wkProject').innerHTML = `<option value="">— Välj —</option>` +
+                projects.map(p => `<option value="${p.id}">${p.id} · ${p.name}</option>`).join('');
+            document.getElementById('checklistProject').innerHTML = `<option value="">— Välj —</option>` +
+                projects.map(p => `<option value="${p.id}">${p.id} · ${p.name}</option>`).join('');
+        }
+
+        function workerLogHours() {
+            const pid = document.getElementById('wkProject').value;
+            const date = document.getElementById('wkDate').value;
+            const room = document.getElementById('wkRoom').value;
+            const hours = parseFloat(document.getElementById('wkHours').value);
+            const note = document.getElementById('wkNote').value;
+
+            if (!pid || !date || !room || !hours || hours <= 0) {
+                showAlert('logAlert', '❌ Fyll i alla fält korrekt', 'alert-danger');
+                return;
+            }
+
+            DB.saveRecord(pid, {
+                date, room, hours, note,
+                worker: currentUser.name,
+                telegramId: currentUser.telegramId
+            });
+
+            showAlert('logAlert', '✅ Timmar loggade!', 'alert-success');
+            
+            document.getElementById('wkProject').value = '';
+            document.getElementById('wkRoom').value = '';
+            document.getElementById('wkHours').value = '';
+            document.getElementById('wkNote').value = '';
+
+            loadWorkerHistory();
+        }
+
+        function loadWorkerHistory() {
+            const projects = DB.getProjects();
+            let records = [];
+
+            projects.forEach(p => {
+                DB.getRecords(p.id).forEach(r => {
+                    if (r.telegramId === currentUser.telegramId) {
+                        records.push({ ...r, projectId: p.id, projectName: p.name });
+                    }
+                });
+            });
+
+            records.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            document.getElementById('workerHistoryTable').innerHTML = records.length ? 
+                records.map(r => `
+                    <tr>
+                        <td>${r.date}</td>
+                        <td><strong>${r.projectName}</strong></td>
+                        <td>${r.room}</td>
+                        <td>${r.hours}h</td>
+                    </tr>
+                `).join('') : 
+                '<tr><td colspan="4" style="text-align: center; color: #6c757d;">Inga poster ännu</td></tr>';
+        }
+
+        // ═══════════════════════════════════════════════════════════════════
+        // CHECKLIST FUNCTIONS
+        // ═══════════════════════════════════════════════════════════════════
+
+        function loadChecklistProjects() {
+            const projects = DB.getProjects();
+            document.getElementById('checklistProject').innerHTML = `<option value="">— Välj —</option>` +
+                projects.map(p => `<option value="${p.id}">${p.id} · ${p.name}</option>`).join('');
+        }
+
+        function loadProjectChecklist() {
+            const pid = document.getElementById('checklistProject').value;
+            if (!pid) {
+                document.getElementById('checklistContainer').innerHTML = '';
+                return;
+            }
+
+            const checklists = DB.getChecklists(pid);
+            let html = '';
+
+            if (checklists.length === 0) {
+                html = '<p style="text-align: center; color: #6c757d; padding: 2rem;">Ingen checklista för detta projekt. Lägg till en!</p>';
+            } else {
+                html = checklists.map(cl => {
+                    const completed = cl.items.filter(item => item.completed).length;
+                    const total = cl.items.length;
+                    const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+                    return `
+                        <div class="checklist-section">
+                            <div class="checklist-section-title">${cl.title}</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${percentage}%;">
+                                    ${percentage}%
+                                </div>
+                            </div>
+                            <div style="margin-top: 1rem;">
+                                ${cl.items.map((item, idx) => `
+                                    <div class="checklist-item">
+                                        <input type="checkbox" id="chk_${cl.id}_${idx}" 
+                                            ${item.completed ? 'checked' : ''} 
+                                            onchange="updateChecklistItem('${pid}', '${cl.id}', ${idx})">
+                                        <label for="chk_${cl.id}_${idx}">${item.name}</label>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            document.getElementById('checklistContainer').innerHTML = html;
+        }
+
+        function updateChecklistItem(pid, clId, itemIdx) {
+            const checklists = DB.getChecklists(pid);
+            const cl = checklists.find(x => x.id === clId);
+            if (cl) {
+                cl.items[itemIdx].completed = !cl.items[itemIdx].completed;
+                DB.saveChecklist(pid, cl);
+                loadProjectChecklist();
+            }
+        }
+
+        function addChecklistToProject() {
+            const pid = document.getElementById('checklistProject').value;
+            if (!pid) {
+                showAlert('checklistAlert', '❌ Välj ett projekt först', 'alert-danger');
+                return;
+            }
+
+            const html = Object.entries(CHECKLIST_TEMPLATES).map(([key, template]) => `
+                <button class="btn btn-primary" onclick="insertChecklist('${pid}', '${key}')" style="margin-bottom: 0.5rem; width: 100%;">
+                    ${template.title}
+                </button>
+            `).join('');
+
+            document.getElementById('checklistTemplates').innerHTML = html;
+            openModal('checklistModal');
+        }
+
+        function insertChecklist(pid, templateKey) {
+            const template = CHECKLIST_TEMPLATES[templateKey];
+            const newChecklist = {
+                id: Date.now().toString(),
+                title: template.title,
+                items: template.items.map(name => ({ name, completed: false }))
+            };
+
+            DB.saveChecklist(pid, newChecklist);
+            closeModal('checklistModal');
+            loadProjectChecklist();
+            showAlert('checklistAlert', '✅ Checklista tillagd!', 'alert-success');
+        }
+
+        // ═══════════════════════════════════════════════════════════════════
+        // ADMIN FUNCTIONS
+        // ═══════════════════════════════════════════════════════════════════
+
+        function loadUsers() {
+            const users = DB.getUsers();
+            document.getElementById('usersTable').innerHTML = users.map(u => `
+                <tr>
+                    <td><strong>${u.name}</strong></td>
+                    <td>${u.telegramId}</td>
+                    <td>${u.role}</td>
+                    <td class="action-buttons">
+                        <button class="btn btn-danger btn-small" onclick="deleteUserAdmin('${u.telegramId}')">🗑</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function openUserModal() {
+            document.getElementById('uName').value = '';
+            document.getElementById('uTelegramId').value = '';
+            document.getElementById('uRole').value = 'worker';
+            openModal('userModal');
+        }
+
+        function deleteUserAdmin(telegramId) {
+            if (confirm('Ta bort denna användare?')) {
+                const users = DB.getUsers().filter(u => u.telegramId !== telegramId);
+                localStorage.setItem('users', JSON.stringify(users));
+                loadUsers();
+            }
+        }
+
+        function saveUser() {
+            const name = document.getElementById('uName').value.trim();
+            const telegramId = document.getElementById('uTelegramId').value.trim();
+            const role = document.getElementById('uRole').value;
+
+            if (!name || !telegramId) {
+                alert('❌ Fyll i namn och Telegram ID');
+                return;
+            }
+
+            const user = {
+                telegramId,
+                name,
+                role,
+                createdAt: new Date().toISOString()
+            };
+
+            DB.saveUser(user);
+            closeModal('userModal');
+            loadUsers();
+        }
+
+        function loadAdminProjects() {
+            const projects = DB.getProjects();
+            document.getElementById('projectsTable').innerHTML = projects.map(p => {
+                return `
+                    <tr>
+                        <td><strong>${p.id}</strong></td>
+                        <td>${p.name}</td>
+                        <td>${p.location || '—'}</td>
+                        <td>${p.plan}h</td>
+                        <td class="action-buttons">
+                            <button class="btn btn-danger btn-small" onclick="deleteProjectAdmin('${p.id}')">🗑</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function openProjectModal() {
+            document.getElementById('pId').value = '';
+            document.getElementById('pName').value = '';
+            document.getElementById('pLocation').value = '';
+            document.getElementById('pPlan').value = '';
+            openModal('projectModal');
+        }
+
+        function saveProject() {
+            const id = document.getElementById('pId').value.trim().toUpperCase();
+            const name = document.getElementById('pName').value.trim();
+            const location = document.getElementById('pLocation').value.trim();
+            const plan = parseFloat(document.getElementById('pPlan').value) || 0;
+
+            if (!id || !name || plan <= 0) {
+                alert('❌ Fyll i alla obligatoriska fält');
+                return;
+            }
+
+            DB.saveProject({ id, name, location, plan });
+            closeModal('projectModal');
+            loadAdminProjects();
+            loadWorkerProjects();
+        }
+
+        function deleteProjectAdmin(id) {
+            if (confirm('Ta bort detta projekt och all data?')) {
+                DB.deleteProject(id);
+                localStorage.removeItem(`records_${id}`);
+                localStorage.removeItem(`checklists_${id}`);
+                loadAdminProjects();
+                loadWorkerProjects();
+            }
+        }
+
+        function loadAllRecords() {
+            const projects = DB.getProjects();
+            let records = [];
+
+            projects.forEach(p => {
+                DB.getRecords(p.id).forEach(r => {
+                    records.push({ ...r, projectId: p.id, projectName: p.name });
+                });
+            });
+
+            records.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            document.getElementById('recordsTable').innerHTML = records.length ? records.map(r => `
+                <tr>
+                    <td>${r.date}</td>
+                    <td><strong>${r.worker}</strong></td>
+                    <td>${r.projectName}</td>
+                    <td>${r.room}</td>
+                    <td>${r.hours}h</td>
+                    <td class="action-buttons">
+                        <button class="btn btn-danger btn-small" onclick="deleteRecordAdmin('${r.projectId}', '${r.id}')">🗑</button>
+                    </td>
+                </tr>
+            `).join('') : 
+            '<tr><td colspan="6" style="text-align: center; color: #6c757d;">Inga poster ännu</td></tr>';
+        }
+
+        function deleteRecordAdmin(pid, rid) {
+            if (confirm('Ta bort denna post?')) {
+                DB.deleteRecord(pid, rid);
+                loadAllRecords();
+            }
+        }
+
+        function changePassword() {
+            const oldPassword = document.getElementById('oldPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const currentPassword = localStorage.getItem('adminPassword') || 'admin123';
+
+            if (!oldPassword || !newPassword || !confirmPassword) {
+                alert('❌ Fyll i alla fält');
+                return;
+            }
+
+            if (oldPassword !== currentPassword) {
+                alert('❌ Gammalt lösenord är felaktigt');
+                return;
+            }
+
+            if (newPassword.length < 4) {
+                alert('❌ Lösenordet måste vara minst 4 tecken');
+                return;
+            }
+
+            if (newPassword !== confirmPassword) {
+                alert('❌ Lösenorden stämmer inte överens');
+                return;
+            }
+
+            localStorage.setItem('adminPassword', newPassword);
+            alert('✅ Lösenordet ändrat!');
+
+            document.getElementById('oldPassword').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmPassword').value = '';
+        }
+
+        function resetAllData() {
+            if (confirm('⚠️ TA BORT ALL DATA! Denna åtgärd kan inte ångras.')) {
+                if (confirm('Är du helt säker?')) {
+                    localStorage.clear();
+                    location.reload();
+                }
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════════════
+        // PDF EXPORT
+        // ═══════════════════════════════════════════════════════════════════
+
+        function exportToPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            const projects = DB.getProjects();
+            let records = [];
+
+            projects.forEach(p => {
+                DB.getRecords(p.id).forEach(r => {
+                    if (r.telegramId === currentUser.telegramId) {
+                        records.push({ ...r, projectId: p.id, projectName: p.name });
+                    }
+                });
+            });
+
+            records.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            doc.setFontSize(16);
+            doc.text('Arbetrapport', 10, 10);
+            doc.setFontSize(11);
+            doc.text(`Arbetare: ${currentUser.name}`, 10, 20);
+            doc.text(`Exporterad: ${new Date().toLocaleDateString('sv-SE')}`, 10, 27);
+
+            const columns = ['Datum', 'Projekt', 'Rum', 'Timmar'];
+            const data = records.map(r => [r.date, r.projectName, r.room, `${r.hours}h`]);
+
+            doc.autoTable({
+                head: [columns],
+                body: data,
+                startY: 35,
+                margin: { left: 10, right: 10 }
+            });
+
+            doc.save(`rapport_${currentUser.name.replace(/\s/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`);
+        }
+
+        function exportAllPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            const projects = DB.getProjects();
+            let records = [];
+
+            projects.forEach(p => {
+                DB.getRecords(p.id).forEach(r => {
+                    records.push({ ...r, projectId: p.id, projectName: p.name });
+                });
+            });
+
+            records.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            doc.setFontSize(16);
+            doc.text('Samtliga Arbetsposter', 10, 10);
+            doc.setFontSize(11);
+            doc.text(`Exporterad: ${new Date().toLocaleDateString('sv-SE')}`, 10, 20);
+
+            const columns = ['Datum', 'Arbetare', 'Projekt', 'Rum', 'Timmar'];
+            const data = records.map(r => [r.date, r.worker, r.projectName, r.room, `${r.hours}h`]);
+
+            doc.autoTable({
+                head: [columns],
+                body: data,
+                startY: 30,
+                margin: { left: 10, right: 10 }
+            });
+
+            doc.save(`rapport_all_${new Date().toISOString().split('T')[0]}.pdf`);
+        }
+
+        // ═══════════════════════════════════════════════════════════════════
+        // UTILS
+        // ═══════════════════════════════════════════════════════════════════
+
+        function openModal(id) {
+            document.getElementById(id).classList.add('show');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('show');
+        }
+
+        function showAlert(elementId, msg, type) {
+            const alert = document.getElementById(elementId);
+            alert.textContent = msg;
+            alert.className = `alert show ${type}`;
+            setTimeout(() => alert.classList.remove('show'), 3000);
+        }
+
+        window.onclick = (e) => {
+            if (e.target.classList.contains('modal')) {
+                e.target.classList.remove('show');
+            }
+        };
+
+        // ═══════════════════════════════════════════════════════════════════
+        // INIT
+        // ═══════════════════════════════════════════════════════════════════
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const saved = localStorage.getItem('currentUser');
+            if (saved) {
+                currentUser = JSON.parse(saved);
+                if (currentUser.role === 'admin') {
+                    showAdminApp();
+                } else {
+                    showWorkerApp();
+                }
+            }
+
+            // Sample data
+            if (DB.getProjects().length === 0) {
+                DB.saveProject({ id: 'UP1024', name: 'Orangerihuset', location: 'Kista', plan: 100 });
+                DB.saveProject({ id: 'UP1025', name: 'Standard Bygg', location: 'Stockholm', plan: 200 });
+            }
+        });
+    </script>
+</body>
+</html>
